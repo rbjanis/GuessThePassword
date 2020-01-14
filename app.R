@@ -9,13 +9,14 @@ ui <- fluidPage(
     theme = shinythemes::shinytheme(theme = "flatly"),
 
     div(titlePanel("How many of the most common 500 passwords can you guess?"),align = "center"),
+    div(HTML("<font size = 5px;> Hint: They're all bad.</font>"), align = "center", style = "padding: 3px 0"),
 
     div(HTML("Data taken from <a href='https://informationisbeautiful.net/visualizations/top-500-passwords-visualized/?utm_content=buffer994fa&utm_medium=social&utm_source=twitter.com&utm_campaign=buffer'>Information is Beautiful</a> top 500 passwords. App made by <a href = 'https://www.thewayir.com/'> Rebecca Janis </a> for <a href = 'https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-01-14/readme.md'> TidyTuesday </a>"),align = "center"),
     br(),
     # HTML("<font size=12px;> Password guess: </font>"),
     div(shiny::textInput(inputId = "guess", label = "", placeholder = "Password guess"),align = "center"),
     div(shiny::htmlOutput("hint_text"), align = "center"),
-    br(),
+    # br(),
     div(shiny::actionButton(inputId = "submit", label = "Guess", style="color: white; background-color: #67999a; border-color: #67999a"), align = "center", style = "padding:3px 0"),
     div(actionButton("hint_button", "Hint"), align = "center", style = "padding:3px 0"),
     div(shiny::actionButton("show", "Show all 500 passwords"), align = "center", style = "padding:3px 0"),
