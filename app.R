@@ -32,17 +32,21 @@ ui <- fluidPage(
 server <- function(input, output) {
     correct_guesses <- reactiveValues(correct = c())
     guess <- eventReactive(input$submit, {
-        if (input$guess %in% passwords$password & !input$guess %in% correct_guesses$correct) {
+        stringr::str_to_lower(input$guess)
+    })
+
+    guess_result <- eventReactive(input$submit, {
+        if (guess() %in% passwords$password & !guess() %in% correct_guesses$correct) {
             HTML("<font color='green'; size = 16px> Yes!</font>")
-        } else if (!input$guess %in% passwords$password) {
+        } else if (!guess() %in% passwords$password) {
             HTML("<font color='red'; size = 16px> Nope, try again.</font>")
-        } else if (input$guess %in% passwords$password & input$guess %in% correct_guesses$correct) {
+        } else if (guess() %in% passwords$password & guess() %in% correct_guesses$correct) {
             HTML("<font color='red'; size = 16px> Password already guessed.</font>")
         }
     }, ignoreNULL = T, ignoreInit = T)
 
     output$result <- renderUI({
-        guess()
+        guess_result()
     })
 
     hint <- eventReactive(input$hint_button, {
@@ -54,7 +58,7 @@ server <- function(input, output) {
 
     counter <- reactiveValues(scorevalue = 0)
     observeEvent(input$submit, {
-        if (input$guess %in% passwords$password & !input$guess %in% correct_guesses$correct) {
+        if (guess() %in% passwords$password & !guess() %in% correct_guesses$correct) {
             counter$scorevalue <- counter$scorevalue + 1
         }
     })
@@ -64,8 +68,8 @@ server <- function(input, output) {
     })
 
     observeEvent(input$submit, {
-        if (input$guess %in% passwords$password & !input$guess %in% correct_guesses$correct) {
-            correct_guesses$correct <- c(correct_guesses$correct, input$guess)
+        if (guess() %in% passwords$password & !guess() %in% correct_guesses$correct) {
+            correct_guesses$correct <- c(correct_guesses$correct, guess())
         }
     })
 
