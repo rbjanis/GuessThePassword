@@ -17,20 +17,23 @@ ui <- fluidPage(
     div(shiny::actionButton(inputId = "submit", label = "Guess", style="color: white; background-color: #67999a; border-color: #67999a"), align = "center"),
     div(shiny::actionButton("show", "Show all 500 passwords"), align = "center"),
     br(),
-    br(),
-    div(htmlOutput("score"),align = "center"),
     div(htmlOutput("result", inline = F), align = "center"),
+    div(htmlOutput("score"),align = "center"),
+    div(htmlOutput("correct_guess_list"), align = "center"),
     br(),
     div(DT::DTOutput("table"), align = "center")
 )
 
 
 server <- function(input, output) {
+    correct_guesses <- reactiveValues(correct = c())
     guess <- eventReactive(input$submit, {
-        if (input$guess %in% passwords$password) {
+        if (input$guess %in% passwords$password & !input$guess %in% correct_guesses$correct) {
             HTML("<font color='green'; size = 16px> Yes!</font>")
-        } else {
+        } else if (!input$guess %in% passwords$password) {
             HTML("<font color='red'; size = 16px> Nope, try again.</font>")
+        } else if (input$guess %in% passwords$password & input$guess %in% correct_guesses$correct) {
+            HTML("<font color='red'; size = 16px> Password already guessed.</font>")
         }
     }, ignoreNULL = T, ignoreInit = T)
 
@@ -40,7 +43,7 @@ server <- function(input, output) {
 
     counter <- reactiveValues(scorevalue = 0)
     observeEvent(input$submit, {
-        if (input$guess %in% passwords$password) {
+        if (input$guess %in% passwords$password & !input$guess %in% correct_guesses$correct) {
             counter$scorevalue <- counter$scorevalue + 1
         }
     })
@@ -48,6 +51,16 @@ server <- function(input, output) {
     output$score <- renderUI({
         HTML(glue::glue("<font size = 14px> Score: {counter$scorevalue} </font>"))
     })
+
+    observeEvent(input$submit, {
+        if (input$guess %in% passwords$password & !input$guess %in% correct_guesses$correct) {
+            correct_guesses$correct <- c(correct_guesses$correct, input$guess)
+        }
+    })
+
+    output$correct_guess_list <- renderUI({
+        glue::glue("Correct guesses: {paste(correct_guesses$correct, collapse = ', ')}")
+        })
 
     table_button <- eventReactive(input$show, {
         select(passwords, rank, password, category)
