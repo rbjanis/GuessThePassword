@@ -14,8 +14,11 @@ ui <- fluidPage(
     br(),
     # HTML("<font size=12px;> Password guess: </font>"),
     div(shiny::textInput(inputId = "guess", label = "", placeholder = "Password guess"),align = "center"),
-    div(shiny::actionButton(inputId = "submit", label = "Guess", style="color: white; background-color: #67999a; border-color: #67999a"), align = "center"),
-    div(shiny::actionButton("show", "Show all 500 passwords"), align = "center"),
+    div(shiny::htmlOutput("hint_text"), align = "center"),
+    br(),
+    div(shiny::actionButton(inputId = "submit", label = "Guess", style="color: white; background-color: #67999a; border-color: #67999a"), align = "center", style = "padding:3px 0"),
+    div(actionButton("hint_button", "Hint"), align = "center", style = "padding:3px 0"),
+    div(shiny::actionButton("show", "Show all 500 passwords"), align = "center", style = "padding:3px 0"),
     br(),
     div(htmlOutput("result", inline = F), align = "center"),
     div(htmlOutput("score"),align = "center"),
@@ -39,6 +42,13 @@ server <- function(input, output) {
 
     output$result <- renderUI({
         guess()
+    })
+
+    hint <- eventReactive(input$hint_button, {
+        glue::glue("Passwords fall in the following categories: {paste(unique(passwords$category), collapse = ', ')}")
+    })
+    output$hint_text <- renderUI({
+        hint()
     })
 
     counter <- reactiveValues(scorevalue = 0)
