@@ -37,6 +37,7 @@ server <- function(input, output) {
 
     guess_result <- eventReactive(input$submit, {
         if (guess() %in% passwords$password & !guess() %in% correct_guesses$correct) {
+            correct_guesses$correct <- c(correct_guesses$correct, guess())
             HTML("<font color='green'; size = 16px> Yes!</font>")
         } else if (!guess() %in% passwords$password) {
             HTML("<font color='red'; size = 16px> Nope, try again.</font>")
@@ -67,11 +68,6 @@ server <- function(input, output) {
         HTML(glue::glue("<font size = 14px> Score: {counter$scorevalue} </font>"))
     })
 
-    observeEvent(input$submit, {
-        if (guess() %in% passwords$password & !guess() %in% correct_guesses$correct) {
-            correct_guesses$correct <- c(correct_guesses$correct, guess())
-        }
-    })
 
     output$correct_guess_list <- renderUI({
         glue::glue("Correct guesses: {paste(correct_guesses$correct, collapse = ', ')}")
